@@ -1,0 +1,43 @@
+# macOS
+.DS_Store
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+cs231venv/
+.python-version
+
+
+# Build and packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# IDE/editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Data sets and large artifacts (keep the download script)
+cs231n/datasets/*
+!cs231n/datasets/get_datasets.sh
+
+# Model outputs and intermediate results
+cs231n/saved/*
+
+# Archives (e.g., submission zips)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+*.bz2
+*.xz
