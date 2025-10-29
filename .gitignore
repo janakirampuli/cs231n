@@ -1,0 +1,49 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+cs231nenv/
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+.jupyter/
+
+# Build artifacts
+build/
+dist/
+*.so
+*.pyd
+*.dylib
+*.egg-info/
+.eggs/
+
+# C/C++/Cython intermediates
+*.o
+*.a
+*.out
+
+# Logs
+*.log
+
+# Test/coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Editor/IDE settings
+.vscode/
+.idea/
+
+# CS231n datasets and generated files
+assignment*/cs231n/datasets/
+assignment*/cs231n/build/
+assignment*/cs231n/saved/
