@@ -803,7 +803,22 @@ def spatial_groupnorm_forward(x, gamma, beta, G, gn_param):
     # the bulk of the code is similar to both train-time batch normalization  #
     # and layer normalization!                                                #
     ###########################################################################
-    # 
+    N, C, H, W = x.shape
+    C_g = C // G
+    x_g = x.reshape(N, G, C_g, H, W)
+    x_flat = x_g.reshape(N * G, -1)
+    D = x_flat.shape[1]
+    mean = np.mean(x_flat, axis=1, keepdims=True)
+    var = np.var(x_flat, axis=1, keepdims=True)
+
+    sq_var = np.sqrt(var + eps)
+    ivar = 1.0 / sq_var
+    x_hat_flat = (x_flat - mean) * ivar # (N * G , D)
+    x_hat = x_hat_flat.reshape(N, G, C_g, H, W).reshape(N, C, H, W)
+
+    out = x_hat * gamma + beta
+
+    cache = (x_flat, x_hat, mean, ivar, D, G, gamma, x.shape, x_hat_flat.shape)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -828,7 +843,40 @@ def spatial_groupnorm_backward(dout, cache):
     # TODO: Implement the backward pass for spatial group normalization.      #
     # This will be extremely similar to the layer norm implementation.        #
     ###########################################################################
-    # 
+    x_flat, x_hat, mean, ivar, D, G, gamma, x_shape, x_hat_flat_shape = cache
+
+    dbeta = np.sum(dout, axis=(0, 2, 3)).reshape(1, -1, 1, 1)
+    dgamma = np.sum(dout * x_hat, axis=(0, 2, 3)).reshape(1, -1, 1, 1)
+
+    dx_hat = dout * gamma
+    dx_hat_flat = dx_hat.reshape(x_hat_flat_shape)
+
+    dx_flat_norm = dx_hat_flat * ivar
+
+    dvar = np.sum((-0.5) * dx_hat_flat * (x_flat - mean) * ivar**3, axis=1, keepdims=True)
+
+    dmean = -1.0 * np.sum(dx_hat_flat * (ivar), axis=1, keepdims=True) + (dvar/D) * np.sum(2.0 * (x_flat - mean), axis=1, keepdims=True)
+
+    dx_flat = dx_flat_norm
+    dx_flat += (dvar * 2.0 * (x_flat - mean) / D)
+    dx_flat += (dmean / D)
+
+    dx = dx_flat.reshape(x_shape)
+
+    # dbeta = np.sum(dout, axis=0)
+    
+    # dgamma = np.sum(dout * x_norm, axis=0)
+    
+    # dx_norm = gamma * dout
+    
+    # ivar = 1.0 / np.sqrt(sample_var + eps)
+
+    # dvar = np.sum((-0.5) * (dx_norm) * (x - sample_mean) * (ivar**3), axis=0)
+    
+    # dmean = -1.0 * (np.sum(dx_norm * (ivar), axis=0) + (dvar/N) * np.sum(2 * (x - sample_mean), axis=0))
+
+    # dx = (dx_norm * ivar) + (dvar * 2.0 * (x - sample_mean) / N) + (dmean / N)
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
